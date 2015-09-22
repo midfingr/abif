@@ -135,10 +135,7 @@ check_system() {
          
   # Encryption (LUKS) Detection
   [[ $(lsblk -o TYPE | grep "crypt") == "" ]] && LUKS=0 || LUKS=1
-  
-  # Welcome Message
-  dialog --backtitle "$VERSION - $SYSTEM ($ARCHI)" --title "$_WelTitle $VERSION " --msgbox "$_WelBody" 0 0
-
+ 
 }
 
 # Chroot without terminating the script
