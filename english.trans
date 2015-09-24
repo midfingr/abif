@@ -295,7 +295,7 @@ _RefiErrBody="\nThe rEFInd installation script will not work unless the UEFI par
 
 # Welcome
 _WelTitle=" Welcome to"
-_WelBody="\nThis installer will download the latest packages from the Arch repositories. Installations are vanilla, so only the minimal necessary configuration is undertaken.\n\nHighlight options by pressing their numbers or by using the up/down arrow keys before pressing [enter] to confirm.\n\nSwitch between buttons by using [Tab] or the left/right arrow keys before pressing [enter] to confirm.\n"
+_WelBody="\nHighlight options by pressing their numbers or by using the up/down arrow keys before pressing [enter] to confirm.\n\nSwitch between buttons by using [Tab] or the left/right arrow keys before pressing [enter] to confirm.\n"
 
 # Preparation Menu
 _PrepTitle=" Prepare Installation "
