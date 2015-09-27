@@ -175,6 +175,7 @@ _NUsrBody="\nEnter the user name. Letters MUST be lower case.\n"
 # Username Error
 _NUsrErrTitle=" User Name Error "
 _NUsrErrBody="\nAn incorrect user name was entered. Please try again.\n\n"
+_NUsrExistBody="\nA user account has already been created!\n\n"
 
 # Set User Password
 _PassNUsrTitle=" Set User Password "
