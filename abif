@@ -1290,7 +1290,8 @@ install_root(){
   
 # copy files from bypass to install device
   clear
-  rsync -a --progress $BYPASS/ $MOUNTPOINT/
+  rsync -a --progress $BYPASS/ $MOUNTPOINT/ 2>/tmp/.errlog
+  check_for_error
   umount -l $BYPASS
 # remove abinstall from openbox menu
   sed -i '/abinstall/,+3d' $MOUNTPOINT/home/ablive/.config/obmenu-generator/schema.pl
@@ -1328,8 +1329,7 @@ install_root(){
   arch_chroot "/usr/bin/touch /var/lib/pacman/sync/{core.db,extra.db,community.db}"
 
 # Fix NetworkManager
-arch_chroot "systemctl stop NetworkManager"
-arch_chroot "systemctl start NetworkManager"
+arch_chroot "systemctl enable NetworkManager -f"
 
 # Keyboard config for vc and x11
   [[ -e /tmp/vconsole.conf ]] && cp /tmp/vconsole.conf ${MOUNTPOINT}/etc/vconsole.conf 2>>/tmp/.errlog
@@ -1376,7 +1376,7 @@ bios_bootloader() {
              BOOTLOADER="Grub"
              ;;
         "2") # Syslinux
-             arch_chroot "syslinux-install_update -iam" 2>>/tmp/.errlog
+             arch_chroot "syslinux-install_update -iam" 2>/tmp/.errlog
              check_for_error
              
              # Amend configuration file depending on whether lvm used or not for root.
