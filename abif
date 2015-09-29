@@ -58,7 +58,8 @@ VG_SIZE_TYPE=""         	# Is VG in Gigabytes or Megabytes?
 # Installation
 MOUNTPOINT="/mnt"       	# Installation
 MOUNT_TYPE=""           	# "/dev/" for standard partitions, "/dev/mapper" for LVM
-AIROOTIMG="/run/archiso/sfs/airootfs/" # Root image to install
+AIROOTIMG="/run/archiso/sfs/airootfs/airootfs.img" # Root image to install
+BYPASS="$MOUNTPOINT/bypass" # Root image mountpoint
 BTRFS=0                     # BTRFS used? "1" = btrfs alone, "2" = btrfs + subvolume(s)
 BTRFS_OPTS="/tmp/.btrfs_opts" #BTRFS Mount options
 BTRFS_MNT=""                # used for syslinux where /mnt is a btrfs subvolume
@@ -1270,11 +1271,16 @@ check_lv_size() {
 
 install_root(){
 
+# Mount image file
+  mkdir -p $BYPASS
+  mount $AIROOTIMG $BYPASS
+
 # copy files from bypass to install device
   clear
-  rsync -a --progress $AIROOTIMG $MOUNTPOINT/ 2>/tmp/.errlog
+  rsync -a --progress $BYPASS/ $MOUNTPOINT/ 2>/tmp/.errlog
+  #rsync -a --progress $AIROOTIMG $MOUNTPOINT/ 2>/tmp/.errlog
   check_for_error
-  
+  umount -l $BYPASS
 # Change openbox menu and oblogout
   cp -f /inst/menu.xml $MOUNTPOINT/home/ablive/.config/openbox/menu.xml
   cp -f /inst/oblogout.conf $MOUNTPOINT/etc/oblogout.conf
@@ -1304,6 +1310,8 @@ install_root(){
   rmdir ${MOUNTPOINT}/src &> /dev/null
   rmdir ${MOUNTPOINT}/source &> /dev/null
   rm -f ${MOUNTPOINT}/etc/sudoers.d/g_wheel
+  rm -f ${MOUNTPOINT}/var/lib/NetworkManager/NetworkManager.state
+
  
 # clean out archiso files from install
   find ${MOUNTPOINT}/usr/lib/initcpio -name archiso* -type f -exec rm '{}' \;
