@@ -1,6 +1,6 @@
 # !/bin/bash
 #
-# Arch Base Installation Framework (version 1.0 - 22-Sept-2015)
+# ArchBang Installation Framework (version 2.1 - 29-Sept-2015)
 #
 # Written by Carl Duff for ArchBang Linux
 #
@@ -18,8 +18,8 @@
 # ISO Specific Variables
 ISO_HOST="archbang"                           		# ISO Host Name
 ISO_USER="ablive"           						# Live user account
-VERSION="ArchBang Installation Framework 2.0"		# Installer Name / Version
-TRANS_SRC="/bin/"									# Dir where translation files are stored
+VERSION="ArchBang Installation Framework 2.1"		# Installer Name / Version
+TRANS_SRC="/abif-master/"							# Dir where translation files are stored
 
 # Create a temporary file to store menu selections
 ANSWER="/tmp/.abif"
@@ -58,8 +58,7 @@ VG_SIZE_TYPE=""         	# Is VG in Gigabytes or Megabytes?
 # Installation
 MOUNTPOINT="/mnt"       	# Installation
 MOUNT_TYPE=""           	# "/dev/" for standard partitions, "/dev/mapper" for LVM
-AIROOTIMG="/run/archiso/sfs/airootfs/airootfs.img" # Root image to install
-BYPASS="$MOUNTPOINT/bypass" # Root image mountpoint
+AIROOTIMG="/run/archiso/sfs/airootfs/" # Root image to install
 BTRFS=0                     # BTRFS used? "1" = btrfs alone, "2" = btrfs + subvolume(s)
 BTRFS_OPTS="/tmp/.btrfs_opts" #BTRFS Mount options
 BTRFS_MNT=""                # used for syslinux where /mnt is a btrfs subvolume
@@ -190,7 +189,7 @@ show_devices() {
 set_keymap() { 
 	
 	KEYMAPS=""
-    for i in $(localectl --no-pager list-keymaps); do
+    for i in $(ls -R /usr/share/kbd/keymaps | grep "map.gz" | sed 's/\.map.gz//g' | sort); do
         KEYMAPS="${KEYMAPS} ${i} -"
     done
     
@@ -321,7 +320,7 @@ set_hostname() {
    HOST_NAME=$(cat ${ANSWER})
 
    echo "$HOST_NAME" > ${MOUNTPOINT}/etc/hostname
-   sed -i "s/${ISO_HOST}/${HOST_NAME}/" ${MOUNTPOINT}/etc/hosts
+   sed -i "s/localhost\.localdoman.*/localhost.localdoman localhost ${HOST_NAME}/g" ${MOUNTPOINT}/etc/hosts
 }
 
 # Set the installed system's root password
@@ -386,15 +385,22 @@ create_new_user() {
         arch_chroot "passwd $ISO_USER" < /tmp/.passwd >/dev/null 2>/tmp/.errlog
         check_for_error
         
-        # Switch from ISO_USER name to entered USER name
-        sed -i "s/$ISO_USER/$USER/g" ${MOUNTPOINT}/home/$ISO_USER/.config/obmenu-generator/config.pl
-        sed -i "s/$ISO_USER/$USER/g" ${MOUNTPOINT}/home/$ISO_USER/.config/obmenu-generator/schema.pl
+        # Convert to entered username - configs
+        sed -i "s/$ISO_USER/$USER/g" ${MOUNTPOINT}/home/$ISO_USER/.gtkrc-2.0
+        sed -i "s/$ISO_USER/$USER/g" ${MOUNTPOINT}/home/$ISO_USER/.config/openbox/autostart
+        sed -i "s/$ISO_USER/$USER/g" ${MOUNTPOINT}/root/.gtkrc-2.0
+        #sed -i "s/$ISO_USER/$USER/g" ${MOUNTPOINT}/home/$ISO_USER/.config/obmenu-generator/config.pl
+        #sed -i "s/$ISO_USER/$USER/g" ${MOUNTPOINT}/home/$ISO_USER/.config/obmenu-generator/schema.pl
+        
+        # Convert to entered username - group, password, folder, and ownership
         sed -i "s/$ISO_USER/$USER/g" ${MOUNTPOINT}/etc/group 2>/tmp/.errlog
         sed -i "s/$ISO_USER/$USER/g" ${MOUNTPOINT}/etc/gshadow 2>>/tmp/.errlog
         sed -i "s/$ISO_USER/$USER/g" ${MOUNTPOINT}/etc/passwd 2>>/tmp/.errlog
         sed -i "s/$ISO_USER/$USER/g" ${MOUNTPOINT}/etc/shadow 2>>/tmp/.errlog
         mv ${MOUNTPOINT}/home/$ISO_USER ${MOUNTPOINT}/home/$USER 2>>/tmp/.errlog
         chown -R $USER:users ${MOUNTPOINT}/home/$USER 2>>/tmp/.errlog
+        
+        # Change sudoers file to require passwords for sudo commands
         sed -i '/%wheel ALL=(ALL) ALL/s/^#//' ${MOUNTPOINT}/etc/sudoers 2>>/tmp/.errlog
         sed -i '/%wheel ALL=(ALL) ALL NOPASSWD: ALL/s/#%wheel ALL=(ALL) ALL NOPASSWD: ALL//' ${MOUNTPOINT}/etc/sudoers 2>>/tmp/.errlog
         check_for_error
@@ -570,14 +576,32 @@ delete_partitions(){
 }
 
     dialog --backtitle "$VERSION - $SYSTEM ($ARCHI)" --title "$_PartToolTitle" \
-    --menu "$_PartToolBody" 0 0 6 \
+    --menu "$_PartToolBody" 0 0 7 \
     "1" $"Auto Partition" \
- 	"2" $"GParted" 2>${ANSWER}	
+ 	"2" $"GParted" \
+ 	"3" $"Parted (BIOS & UEFI)" \
+	"4" $"CFDisk (BIOS/MBR)" \
+	"5" $"CGDisk (UEFI/GPT)" \
+	"6" $"FDisk  (BIOS & UEFI)" \
+	"7" $"GDisk  (UEFI/GPT)" 2>${ANSWER}
 
     case $(cat ${ANSWER}) in
         "1") auto_partition
              ;;
-        "2") gparted ${DEVICE}
+        "2") gparted ${DEVICE} >/dev/null 2>&1
+             ;;
+        "3") clear
+             parted ${DEVICE}
+             ;;
+        "4") cfdisk ${DEVICE}
+             ;;
+        "5") cgdisk ${DEVICE}
+             ;;       
+        "6") clear
+             fdisk ${DEVICE}
+             ;;
+        "7") clear
+             gdisk ${DEVICE}
              ;;
           *) prep_menu
              ;;
@@ -1246,27 +1270,31 @@ check_lv_size() {
 
 install_root(){
 
-# mount image file
-  mkdir -p $BYPASS
-  mount $AIROOTIMG $BYPASS
-  
 # copy files from bypass to install device
   clear
-  rsync -a --progress $BYPASS/ $MOUNTPOINT/ 2>/tmp/.errlog
+  rsync -a --progress $AIROOTIMG $MOUNTPOINT/ 2>/tmp/.errlog
   check_for_error
-  umount -l $BYPASS
-# remove abinstall from openbox menu
-  sed -i '/abinstall/,+3d' $MOUNTPOINT/home/ablive/.config/obmenu-generator/schema.pl
-# set xkeyboard map
-  sed -i "s/us/${KEYMAP_XKB:0:2}/g" $MOUNTPOINT/etc/X11/xorg.conf.d/01-keyboard-layout.conf
+  
+# Change openbox menu and oblogout
+  cp -f /inst/menu.xml $MOUNTPOINT/home/ablive/.config/openbox/menu.xml
+  cp -f /inst/oblogout.conf $MOUNTPOINT/etc/oblogout.conf
+  
+# Keyboard config for vc and x11
+  [[ -e /tmp/vconsole.conf ]] && cp /tmp/vconsole.conf ${MOUNTPOINT}/etc/vconsole.conf 2>>/tmp/.errlog
+  [[ -e /tmp/01-keyboard-layout.conf ]] && cp -f /tmp/01-keyboard-layout.conf ${MOUNTPOINT}/etc/X11/xorg.conf.d/$(ls ${MOUNTPOINT}/etc/X11/xorg.conf.d/ | grep "keyboard") 2>>/tmp/.errlog
+  check_for_error
+  
 # set up kernel for mkiniticpio
   cp /run/archiso/bootmnt/arch/boot/${ARCHI}/vmlinuz ${MOUNTPOINT}/boot/vmlinuz-linux
-# put live driver into new install
-  cp /etc/X11/xorg.conf.d/20-gpudriver.conf ${MOUNTPOINT}/etc/X11/xorg.conf.d/20-gpudriver.conf &>/dev/null
+
 # copy over new mirrorlist
   cp /etc/pacman.d/mirrorlist ${MOUNTPOINT}/etc/pacman.d/mirrorlist
-# Clean up new install
-  rm -f ${MOUNTPOINT}/usr/bin/abinstall &> /dev/null
+  
+# Clean up installation
+  [[ -d ${MOUNTPOINT}/abif-master ]] && rm -R ${MOUNTPOINT}/abif-master &> /dev/null
+  [[ -d ${MOUNTPOINT}/aif-master ]] && rm -R ${MOUNTPOINT}/abif-master &> /dev/null
+  [[ -d ${MOUNTPOINT}/inst ]] && rm -R ${MOUNTPOINT}/inst &> /dev/null
+  rm -R ${MOUNTPOINT}/etc/systemd/system/getty@tty1.service.d
   rm -f ${MOUNTPOINT}/usr/bin/lastmin &> /dev/null
   rm -rf ${MOUNTPOINT}/vomi &> /dev/null
   rm -rf ${BYPASS} &> /dev/null
@@ -1275,6 +1303,7 @@ install_root(){
   rmdir ${MOUNTPOINT}/bypass &> /dev/null
   rmdir ${MOUNTPOINT}/src &> /dev/null
   rmdir ${MOUNTPOINT}/source &> /dev/null
+  rm -f ${MOUNTPOINT}/etc/sudoers.d/g_wheel
  
 # clean out archiso files from install
   find ${MOUNTPOINT}/usr/lib/initcpio -name archiso* -type f -exec rm '{}' \;
@@ -1282,6 +1311,7 @@ install_root(){
 # systemd
   rm ${MOUNTPOINT}/etc/systemd/system/default.target &> /dev/null
   arch_chroot  "/usr/bin/systemctl -f disable lastmin.service || true"
+  rm -f ${MOUNTPOINT}/usr/bin/lastmin &> /dev/null
 
 # Journal 
   sed -i 's/volatile/auto/g' ${MOUNTPOINT}/etc/systemd/journald.conf
@@ -1291,7 +1321,7 @@ install_root(){
   arch_chroot "/usr/bin/touch /var/lib/pacman/sync/{core.db,extra.db,community.db}"
 
 # Fix NetworkManager
-arch_chroot "systemctl enable NetworkManager -f"
+  arch_chroot "systemctl enable NetworkManager -f"
 
 # Keyboard config for vc and x11
   [[ -e /tmp/vconsole.conf ]] && cp /tmp/vconsole.conf ${MOUNTPOINT}/etc/vconsole.conf 2>>/tmp/.errlog
@@ -1616,7 +1646,7 @@ edit_configs() {
 	   fi
 	fi
 
-   dialog --default-item ${HIGHLIGHT_SUB} --backtitle "$VERSION - $SYSTEM ($ARCHI)" --title "$_SeeConfOptTitle" --menu "$_SeeConfOptBody" 0 0 12 \
+   dialog --default-item ${HIGHLIGHT_SUB} --backtitle "$VERSION - $SYSTEM ($ARCHI)" --title "$_SeeConfOptTitle" --menu "$_SeeConfOptBody" 0 0 11 \
    "1" "/etc/vconsole.conf" \
    "2" "/etc/locale.conf" \
    "3" "/etc/hostname" \
@@ -1625,10 +1655,9 @@ edit_configs() {
    "6" "/etc/mkinitcpio.conf" \
    "7" "/etc/fstab" \
    "8" "$BOOTLOADER" \
-   "9" "/etc/lxdm/lxdm.conf" \
-  "10" "/etc/pacman.conf" \
-  "11" "/etc/pacman.d/mirrorlist" \
-  "12" "$_Back" 2>${ANSWER}
+   "9" "/etc/pacman.conf" \
+  "10" "/etc/pacman.d/mirrorlist" \
+  "11" "$_Back" 2>${ANSWER}
 	
 	HIGHLIGHT_SUB=$(cat ${ANSWER})
 	case $(cat ${ANSWER}) in
@@ -1660,14 +1689,9 @@ edit_configs() {
                            ;;
               esac
              ;;
-        "9") FILE="${MOUNTPOINT}/etc/lxdm/lxdm.conf" 
-             #FILE="${MOUNTPOINT}/etc/lightdm/lightdm.conf" 
-             #FILE="${MOUNTPOINT}/etc/sddm.conf"
-             #FILE="${MOUNTPOINT}/etc/slim.conf"
-             ;;  
-       "10") FILE="${MOUNTPOINT}/etc/pacman.conf"
+        "9") FILE="${MOUNTPOINT}/etc/pacman.conf"
              ;;
-       "11") FILE="${MOUNTPOINT}/etc/pacman.d/mirrorlist"
+       "10") FILE="${MOUNTPOINT}/etc/pacman.d/mirrorlist"
              ;;   
          *) main_menu
             ;;
