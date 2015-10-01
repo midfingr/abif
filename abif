@@ -321,7 +321,7 @@ set_hostname() {
    HOST_NAME=$(cat ${ANSWER})
 
    echo "$HOST_NAME" > ${MOUNTPOINT}/etc/hostname
-   echo -e "#<ip-address>\t<hostname.domain.org>\t<hostname>\n127.0.0.1\tlocalhost.localdomain\tlocalhost\t${HOST_NAME}\n::1\tlocalhost.localdomain\tlocalhost\t${HOST_NAME}" > ${MOUNTPOINT}/etc/hosts
+   sed -i "s/archbang/$HOST_NAME/g" ${MOUNTPOINT}/etc/hosts
 }
 
 # Set the installed system's root password
