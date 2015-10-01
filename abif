@@ -1,6 +1,6 @@
 # !/bin/bash
 #
-# ArchBang Installation Framework (version 2.1 - 29-Sept-2015)
+# Arch Base Installation Framework (version 1.2 - 01-Oct-2015)
 #
 # Written by Carl Duff for ArchBang Linux
 #
@@ -18,7 +18,7 @@
 # ISO Specific Variables
 ISO_HOST="archbang"                           		# ISO Host Name
 ISO_USER="ablive"           						# Live user account
-VERSION="ArchBang Installation Framework 2.1"		# Installer Name / Version
+VERSION="ArchBang Installation Framework 2.2"		# Installer Name / Version
 TRANS_SRC="/abif-master/"							# Dir where translation files are stored
 
 # Create a temporary file to store menu selections
@@ -58,8 +58,8 @@ VG_SIZE_TYPE=""         	# Is VG in Gigabytes or Megabytes?
 # Installation
 MOUNTPOINT="/mnt"       	# Installation
 MOUNT_TYPE=""           	# "/dev/" for standard partitions, "/dev/mapper" for LVM
-AIROOTIMG="/run/archiso/sfs/airootfs/airootfs.img" # Root image to install
-BYPASS="$MOUNTPOINT/bypass" # Root image mountpoint
+AIROOTIMG=""                # Root image to install
+BYPASS="$MOUNTPOINT/bypass/" # Root image mountpoint
 BTRFS=0                     # BTRFS used? "1" = btrfs alone, "2" = btrfs + subvolume(s)
 BTRFS_OPTS="/tmp/.btrfs_opts" #BTRFS Mount options
 BTRFS_MNT=""                # used for syslinux where /mnt is a btrfs subvolume
@@ -386,7 +386,7 @@ create_new_user() {
         arch_chroot "passwd $ISO_USER" < /tmp/.passwd >/dev/null 2>/tmp/.errlog
         check_for_error
         
-        # Convert to entered username - configs
+        # Distro-specific configuration for entered username
         sed -i "s/$ISO_USER/$USER/g" ${MOUNTPOINT}/home/$ISO_USER/.gtkrc-2.0
         sed -i "s/$ISO_USER/$USER/g" ${MOUNTPOINT}/home/$ISO_USER/.config/openbox/autostart
         sed -i "s/$ISO_USER/$USER/g" ${MOUNTPOINT}/root/.gtkrc-2.0
@@ -1271,67 +1271,73 @@ check_lv_size() {
 
 install_root(){
 
-# Mount image file
-  mkdir -p $BYPASS
-  mount $AIROOTIMG $BYPASS
-
-# copy files from bypass to install device
   clear
-  rsync -a --progress $BYPASS/ $MOUNTPOINT/ 2>/tmp/.errlog
-  #rsync -a --progress $AIROOTIMG $MOUNTPOINT/ 2>/tmp/.errlog
+
+  # Change installation method depending on use of img or sfs
+  if [[ -e /run/archiso/sfs/airootfs/airootfs.img ]]; then
+     AIROOTIMG="/run/archiso/sfs/airootfs/airootfs.img"
+     mkdir -p ${BYPASS} 2>/tmp/.errlog
+	 mount ${AIROOTIMG} ${BYPASS} 2>>/tmp/.errlog
+	 rsync -a --progress ${BYPASS} ${MOUNTPOINT}/ 2>>/tmp/.errlog
+	 umount -l ${BYPASS}
+  else
+     AIROOTIMG="/run/archiso/sfs/airootfs/"
+     rsync -a --progress ${AIROOTIMG} ${MOUNTPOINT}/ 2>/tmp/.errlog
+  fi
+
   check_for_error
-  umount -l $BYPASS
-# Change openbox menu and oblogout
-  cp -f /inst/menu.xml $MOUNTPOINT/home/ablive/.config/openbox/menu.xml
-  cp -f /inst/oblogout.conf $MOUNTPOINT/etc/oblogout.conf
+
+  # Distro-specific configuration
+  cp -f /inst/menu.xml $MOUNTPOINT/home/ablive/.config/openbox/menu.xml 2>/tmp/.errlog
+  cp -f /inst/oblogout.conf $MOUNTPOINT/etc/oblogout.conf 2>>/tmp/.errlog
   
-# Keyboard config for vc and x11
+  # Keyboard config for vc and x11
   [[ -e /tmp/vconsole.conf ]] && cp /tmp/vconsole.conf ${MOUNTPOINT}/etc/vconsole.conf 2>>/tmp/.errlog
   [[ -e /tmp/01-keyboard-layout.conf ]] && cp -f /tmp/01-keyboard-layout.conf ${MOUNTPOINT}/etc/X11/xorg.conf.d/$(ls ${MOUNTPOINT}/etc/X11/xorg.conf.d/ | grep "keyboard") 2>>/tmp/.errlog
-  check_for_error
   
-# set up kernel for mkiniticpio
-  cp /run/archiso/bootmnt/arch/boot/${ARCHI}/vmlinuz ${MOUNTPOINT}/boot/vmlinuz-linux
+  # set up kernel for mkiniticpio
+  cp /run/archiso/bootmnt/arch/boot/${ARCHI}/vmlinuz ${MOUNTPOINT}/boot/vmlinuz-linux 2>>/tmp/.errlog
 
-# copy over new mirrorlist
-  cp /etc/pacman.d/mirrorlist ${MOUNTPOINT}/etc/pacman.d/mirrorlist
+  # copy over new mirrorlist
+  cp /etc/pacman.d/mirrorlist ${MOUNTPOINT}/etc/pacman.d/mirrorlist 2>>/tmp/.errlog
   
-# Clean up installation
-  [[ -d ${MOUNTPOINT}/abif-master ]] && rm -R ${MOUNTPOINT}/abif-master &> /dev/null
-  [[ -d ${MOUNTPOINT}/aif-master ]] && rm -R ${MOUNTPOINT}/abif-master &> /dev/null
-  [[ -d ${MOUNTPOINT}/inst ]] && rm -R ${MOUNTPOINT}/inst &> /dev/null
-  rm -R ${MOUNTPOINT}/etc/systemd/system/getty@tty1.service.d
-  rm -f ${MOUNTPOINT}/usr/bin/lastmin &> /dev/null
-  rm -rf ${MOUNTPOINT}/vomi &> /dev/null
-  rm -rf ${BYPASS} &> /dev/null
-  rm -rf ${MOUNTPOINT}/source &> /dev/null
-  rm -rf ${MOUNTPOINT}/src &> /dev/null
-  rmdir ${MOUNTPOINT}/bypass &> /dev/null
-  rmdir ${MOUNTPOINT}/src &> /dev/null
-  rmdir ${MOUNTPOINT}/source &> /dev/null
-  rm -f ${MOUNTPOINT}/etc/sudoers.d/g_wheel
-  rm -f ${MOUNTPOINT}/var/lib/NetworkManager/NetworkManager.state
+  # Clean up installation
+  [[ -d ${MOUNTPOINT}/abif-master ]] && rm -R ${MOUNTPOINT}/abif-master 2>>/tmp/.errlog
+  [[ -d ${MOUNTPOINT}/aif-master ]] && rm -R ${MOUNTPOINT}/abif-master 2>>/tmp/.errlog
+  [[ -d ${MOUNTPOINT}/inst ]] && rm -R ${MOUNTPOINT}/inst &> /dev/null 2>>/tmp/.errlog
+  rm -f ${MOUNTPOINT}/usr/bin/lastmin 2>>/tmp/.errlog
+  rm -rf ${MOUNTPOINT}/vomi 2>>/tmp/.errlog
+  rm -rf ${BYPASS} 2>>/tmp/.errlog
+  rm -rf ${MOUNTPOINT}/source 2>>/tmp/.errlog
+  rm -rf ${MOUNTPOINT}/src 2>>/tmp/.errlog
+  rmdir ${MOUNTPOINT}/bypass 2>>/tmp/.errlog
+  rmdir ${MOUNTPOINT}/src 2>>/tmp/.errlog
+  rmdir ${MOUNTPOINT}/source 2>>/tmp/.errlog
+  rm -f ${MOUNTPOINT}/etc/sudoers.d/g_wheel 2>>/tmp/.errlog
+  rm -f ${MOUNTPOINT}/var/lib/NetworkManager/NetworkManager.state 2>>/tmp/.errlog
 
  
-# clean out archiso files from install
+  # clean out archiso files from install
   find ${MOUNTPOINT}/usr/lib/initcpio -name archiso* -type f -exec rm '{}' \;
  
-# systemd
-  rm ${MOUNTPOINT}/etc/systemd/system/default.target &> /dev/null
-  arch_chroot  "/usr/bin/systemctl -f disable lastmin.service || true"
-  rm -f ${MOUNTPOINT}/usr/bin/lastmin &> /dev/null
+  # systemd
+  rm -R ${MOUNTPOINT}/etc/systemd/system/getty@tty1.service.d 2>>/tmp/.errlog
+  rm ${MOUNTPOINT}/etc/systemd/system/default.target 2>>/tmp/.errlog
+  arch_chroot  "systemctl disable lastmin.service -f" 2>>/tmp/.errlog
+  rm -f ${MOUNTPOINT}/usr/bin/lastmin 2>>/tmp/.errlog
+
 
 # Journal 
-  sed -i 's/volatile/auto/g' ${MOUNTPOINT}/etc/systemd/journald.conf
+  sed -i 's/volatile/auto/g' ${MOUNTPOINT}/etc/systemd/journald.conf 2>>/tmp/.errlog
  
-# Stop pacman complaining
-  arch_chroot "/usr/bin/mkdir -p /var/lib/pacman/sync"
-  arch_chroot "/usr/bin/touch /var/lib/pacman/sync/{core.db,extra.db,community.db}"
+  # Stop pacman complaining
+  arch_chroot "mkdir -p /var/lib/pacman/sync" 2>>/tmp/.errlog
+  arch_chroot "touch /var/lib/pacman/sync/{core.db,extra.db,community.db}" 2>>/tmp/.errlog
 
-# Fix NetworkManager
-  arch_chroot "systemctl enable NetworkManager -f"
+  # Fix NetworkManager
+  arch_chroot "systemctl enable NetworkManager -f" 2>>/tmp/.errlog
 
-# Keyboard config for vc and x11
+  # Keyboard config for vc and x11
   [[ -e /tmp/vconsole.conf ]] && cp /tmp/vconsole.conf ${MOUNTPOINT}/etc/vconsole.conf 2>>/tmp/.errlog
   [[ -e /tmp/01-keyboard-layout.conf ]] && cp -f /tmp/01-keyboard-layout.conf ${MOUNTPOINT}/etc/X11/xorg.conf.d/$(ls ${MOUNTPOINT}/etc/X11/xorg.conf.d/ | grep "keyboard") 2>>/tmp/.errlog
   check_for_error
