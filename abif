@@ -1702,8 +1702,8 @@ edit_configs() {
                            ;;
                "Syslinux") FILE="${MOUNTPOINT}/boot/syslinux/syslinux.cfg"
                            ;;
-           "systemd-boot") FILE="${MOUNTPOINT}/boot/loader/entries/archbang.conf" 
-                           FILE2="${MOUNTPOINT}/boot/loader/loader.conf"
+           "systemd-boot") FILE="${MOUNTPOINT}${UEFI_MOUNT}/loader/entries/archbang.conf" 
+                           FILE2="${MOUNTPOINT}${UEFI_MOUNT}/loader/loader.conf"
                            ;;
                  "rEFInd") [[ -e ${MOUNTPOINT}${UEFI_MOUNT}/EFI/refind/refind.conf ]] \
                            && FILE="${MOUNTPOINT}${UEFI_MOUNT}/EFI/refind/refind.conf" || FILE="${MOUNTPOINT}${UEFI_MOUNT}/EFI/BOOT/refind.conf"
