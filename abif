@@ -1494,7 +1494,7 @@ uefi_bootloader() {
     arch_chroot "PATH=/usr/local/sbin:/usr/local/bin:/usr/bin:/usr/bin/core_perl" 2>/tmp/.errlog
     check_for_error
 
-    if [[ $UEFI -eq 0 ]]; then
+    if [[ SYSTEM="BIOS" ]]; then
        bios_bootloader
     else
        uefi_bootloader
