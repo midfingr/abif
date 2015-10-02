@@ -1392,7 +1392,8 @@ bios_bootloader() {
                 sed -i "s/APPEND.*/APPEND root=\/dev\/mapper\/${ROOT_PART} rw/g" ${MOUNTPOINT}/boot/syslinux/syslinux.cfg
              fi
              
-             # Amend configuration if btrfs subvolume as root
+             # Amend configuration file for LTS kernel and/or btrfs subvolume as root
+             [[ $LTS -eq 1 ]] && sed -i 's/linux/linux-lts/g' ${MOUNTPOINT}/boot/syslinux/syslinux.cfg
              [[ $BTRFS_MNT != "" ]] && sed -i "s/rw/rw $BTRFS_MNT/g" ${MOUNTPOINT}/boot/syslinux/syslinux.cfg
              
              BOOTLOADER="Syslinux"
@@ -1701,8 +1702,8 @@ edit_configs() {
                            ;;
                "Syslinux") FILE="${MOUNTPOINT}/boot/syslinux/syslinux.cfg"
                            ;;
-           "systemd-boot") FILE="${MOUNTPOINT}${UEFI_MOUNT}/loader/entries/arch.conf" 
-                           FILE2="${MOUNTPOINT}${UEFI_MOUNT}/loader/loader.conf"
+           "systemd-boot") FILE="${MOUNTPOINT}/boot/loader/entries/arch.conf" 
+                           FILE2="${MOUNTPOINT}/boot/loader/loader.conf"
                            ;;
                  "rEFInd") [[ -e ${MOUNTPOINT}${UEFI_MOUNT}/EFI/refind/refind.conf ]] \
                            && FILE="${MOUNTPOINT}${UEFI_MOUNT}/EFI/refind/refind.conf" || FILE="${MOUNTPOINT}${UEFI_MOUNT}/EFI/BOOT/refind.conf"
