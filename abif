@@ -317,7 +317,7 @@ generate_fstab() {
 # Set the installed system's hostname
 set_hostname() {
 
-   dialog --backtitle "$VERSION - $SYSTEM ($ARCHI)" --title "$_HostNameTitle" --inputbox "$_HostNameBody" 0 0 "arch" 2>${ANSWER} || config_base_menu
+   dialog --backtitle "$VERSION - $SYSTEM ($ARCHI)" --title "$_HostNameTitle" --inputbox "$_HostNameBody" 0 0 "archbang" 2>${ANSWER} || config_base_menu
    HOST_NAME=$(cat ${ANSWER})
 
    echo "$HOST_NAME" > ${MOUNTPOINT}/etc/hostname
