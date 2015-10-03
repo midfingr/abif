@@ -1,6 +1,6 @@
 # !/bin/bash
 #
-# Arch Base Installation Framework (version 1.2 - 01-Oct-2015)
+# Arch Base Installation Framework (version 1.3 - 03-Oct-2015)
 #
 # Written by Carl Duff for ArchBang Linux
 #
@@ -18,7 +18,7 @@
 # ISO Specific Variables
 ISO_HOST="archbang"                           		# ISO Host Name
 ISO_USER="ablive"           						# Live user account
-VERSION="ArchBang Installation Framework 2.2"		# Installer Name / Version
+VERSION="ArchBang Installation Framework 2.3"		# Installer Name / Version
 TRANS_SRC="/abif-master/"							# Dir where translation files are stored
 
 # Create a temporary file to store menu selections
@@ -1315,6 +1315,7 @@ install_root(){
   rmdir ${MOUNTPOINT}/source 2>>/tmp/.errlog
   rm -f ${MOUNTPOINT}/etc/sudoers.d/g_wheel 2>>/tmp/.errlog
   rm -f ${MOUNTPOINT}/var/lib/NetworkManager/NetworkManager.state 2>>/tmp/.errlog
+  sed -i 's/.*pam_wheel\.so/#&/' ${MOUNTPOINT}/etc/pam.d/su
 
  
   # clean out archiso files from install
