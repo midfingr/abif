@@ -321,7 +321,7 @@ set_hostname() {
    HOST_NAME=$(cat ${ANSWER})
 
    echo "$HOST_NAME" > ${MOUNTPOINT}/etc/hostname
-   sed -i "s/xxxxx/$HOST_NAME/g" ${MOUNTPOINT}/etc/hosts
+   sed -i "s/$ISO_HOST/$HOST_NAME/g" ${MOUNTPOINT}/etc/hosts
 }
 
 # Set the installed system's root password
