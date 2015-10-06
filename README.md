@@ -1,8 +1,7 @@
 ================================
 Arch Base Installation Framework
 ================================
-A generic *offline* installer for Arch-based ISOs. Default configuration is for ArchBang Linux.
-Feel free to use it for your distribution.
+A generic *offline* installer for Arch-based ISOs. Feel free to use it for your distribution.
 
 ================================
 Features
@@ -17,5 +16,7 @@ Features
 ================================
 Basic Assumptions
 ================================
++ dialog *must* be installed
 + Boot menus assume Grub, Syslinux, systemd-boot and rEFInd are installed
-+ Installation assumes NetworkManager, obmenu-generator, and LXDM are installed.
++ Default partitioning tools are parted, cfdisk, cgdisk, fdisk, and gdisk
++ You will need to add your own post-configuration code for DMs, and specific files
