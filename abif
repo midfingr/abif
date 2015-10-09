@@ -81,18 +81,17 @@ FILE2=""					# Which second file is to be opened?
 # Add locale on-the-fly and sets source translation file for installer
 select_language() {
     
-    dialog --backtitle "$VERSION - $SYSTEM ($ARCHI)" --title " Select Language " --menu "\nLanguage / sprache / taal / språk / lingua / idioma / nyelv / língua" 0 0 11 \
+    dialog --backtitle "$VERSION - $SYSTEM ($ARCHI)" --title " Select Language " --menu "\nLanguage / sprache / taal / språk / lingua / idioma / nyelv / língua" 0 0 10 \
  	"1" $"English		(en)" \
  	"2" $"Italian 		(it)" \
  	"3" $"Russian 		(ru)" \
- 	"4" $"Turkish 		(tr)" \
- 	"5" $"Dutch 		(nl)" \
- 	"6" $"Greek 		(el)" \
- 	"7" $"Danish 		(da)" \
- 	"8" $"Hungarian 	(hu)" \
- 	"9" $"Portuguese 	(pt)" \
-   "10" $"German	 	(de)" \
-   "11" $"French		(fr)" 2>${ANSWER}
+ 	"4" $"Dutch 		(nl)" \
+ 	"5" $"Greek 		(el)" \
+ 	"6" $"Danish 		(da)" \
+ 	"7" $"Hungarian 	(hu)" \
+ 	"8" $"Portuguese 	(pt)" \
+   "09" $"German	 	(de)" \
+   "10" $"French		(fr)" 2>${ANSWER}
 
 	case $(cat ${ANSWER}) in
         "1") source ${TRANS_SRC}/english.trans
@@ -105,31 +104,27 @@ select_language() {
              CURR_LOCALE="ru_RU.UTF-8"
              FONT="LatKaCyrHeb-14.psfu"
              ;;
-        "4") source ${TRANS_SRC}/turkish.trans
-             CURR_LOCALE="tr_TR.UTF-8"
-             FONT="LatKaCyrHeb-14.psfu"
-             ;;
-        "5") source ${TRANS_SRC}/dutch.trans
+        "4") source ${TRANS_SRC}/dutch.trans
              CURR_LOCALE="nl_NL.UTF-8"
              ;;             
-        "6") source ${TRANS_SRC}/greek.trans
+        "5") source ${TRANS_SRC}/greek.trans
              CURR_LOCALE="el_GR.UTF-8"
              FONT="iso07u-16.psfu"       
              ;;
-        "7") source ${TRANS_SRC}/danish.trans
+        "6") source ${TRANS_SRC}/danish.trans
              CURR_LOCALE="da_DK.UTF-8"
              ;;   
-        "8") source ${TRANS_SRC}/hungarian.trans
+        "7") source ${TRANS_SRC}/hungarian.trans
              CURR_LOCALE="hu_HU.UTF-8"
              FONT="lat2-16.psfu"
              ;;
-        "9") source ${TRANS_SRC}/portuguese.trans
+        "8") source ${TRANS_SRC}/portuguese.trans
              CURR_LOCALE="pt_BR.UTF-8"    
              ;;      
-       "10") source ${TRANS_SRC}/german.trans
+       "9") source ${TRANS_SRC}/german.trans
              CURR_LOCALE="de_DE.UTF-8"
              ;;
-       "11") source ${TRANS_SRC}/french.trans
+       "10") source ${TRANS_SRC}/french.trans
              CURR_LOCALE="fr_FR.UTF-8"
              ;;
           *) exit 0
