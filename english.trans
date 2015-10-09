@@ -3,9 +3,14 @@
 ## English Translation File		
 ##								
 ##
-## Written by Carl Duff (06-Oct-2015)
+## Written by Carl Duff (01-Oct-2015)
 ##
 ##
+
+# Accessibility
+_InstAccOpt="Accessibility Packages (optional)"
+_InstAccTitle=" Install Accessibility Packages "
+_InstAccBody="Select desired accessibility packages."
 
 # btrfs
 _btrfsSVTitle=" btrfs Subvolumes "
@@ -38,6 +43,19 @@ _ErrTitle=" Error "
 _ErrNoMount="\nPartition(s) must be mounted first.\n\n"
 _ErrNoBase="\nThe Arch base must be installed first.\n\n"
 
+# Vbox Installations
+_VBoxInstTitle=" VirtualBox Installation "
+_VBoxInstBody="\nIf for any reason the VirtualBox guest modules do not load for the installed system (e.g. low resolution and scrollbars after booting), a one-off series of commands will fix this:\n\n$ su\n# depmod -a\n# modprobe -a vboxvideo vboxguest vboxsf\n# reboot"
+
+# Select Wireless Firmware Driver(s)
+_InstWirelessFirm="Install Wireless Device Firmware"
+_WirelssFirmTitle=" Select Wireless Device Firmware "
+_WirelssFirmBody="\nSome wireless devices require additional firmware to be installed in order to work.\n\nWhere unsure if additional firmware is required - or which to select - then all of them can be installed."
+_SeeWirelessDev="Display Wireless Device (optional)"
+_WirelessShowTitle=" Wireless Device "
+_WirelessErrBody="\nNone Detected.\n"
+_All="All"
+
 # Select Config Files
 _SeeConfOpt="Review Configuration Files (optional)"
 _SeeConfOptTitle=" Configuration Files "
@@ -45,6 +63,9 @@ _SeeConfOptBody="\nSelect any file listed below to be reviewed or amended.\n"
 _SeeConfErrTitle=" Review Error "
 _SeeConfErrBody1="\nFile does not exist.\n\n"
 _SeeConfErrBody2="\nThe Base System must be installed first.\n\n"
+
+# Pacman - translate
+_PrepPacKey="Refresh Pacman Keys"
 
 # Logical Volume Management
 _PrepLVM="Logical Volume Management (optional)"
@@ -112,11 +133,14 @@ _DevShowTitle=" Devices / Partitions "
 _DevShowOpt="List Devices (optional)"
 
 # Check Requirements and Identify System Type - Translate
-_ChkTitle=" Checking Requirements "
-_ChkBody="\nChecking installer has been run as root...\n\n"
+_ChkTitle=" Rechecking Requirements "
+_ChkBody="\nRechecking installer has been run as root and that there is an active internet connection. Please wait...\n\n"
 
 _RtFailTitle=" Root Failure "
 _RtFailBody="\nThe installer must be run as root. Exiting.\n\n"
+
+_ConFailTitle=" Connection Failure "
+_ConFailBody="\nInternet connection test failed. Exiting.\n\n"
 
 _ReqMetTitle=" Requirements Met "
 _ReqMetBody="\nAll checks passed!\n\n"
@@ -124,12 +148,35 @@ _ReqMetBody="\nAll checks passed!\n\n"
 _UefiDet="UEFI System Detected"
 _BiosDet="BIOS System Detected"
 
+# Installer Mirrorlist - Translate
+_MirrorlistTitle=" Mirrorlist "
+_MirrorlistBody="\nThe mirrorlist contains server addresses used by pacman to install packages. They are accessed by pacman in the order listed.\n\n"
+_MirrorbyCountry="Generate list by Country"
+_MirrorEdit="Manually edit mirrorlist"
+_MirrorRank="Sort mirrorlist by fastest servers"
+_MirrorRestore="Restore original mirrorlist"
+_MirrorRankTitle=" Running RankMirrors "
+_MirrorRankBody="\nFinding the fastest servers from the mirrorlist. Please wait...\n\n"
+_MirrorRankDone="\nDone! The mirrorlist has been sorted by the fastest servers.\n\n"
+_MirrorRestDone="\nDone! The original mirrorlist has been restored.\n\n"
+_MirrorNoneTitle=" Mirrorlist Error "
+_MirrorNoneBody="\nA copy of the original mirrorlist was not found.\n\n"
+
+# Generate Mirrorlist by country
+_MirrorCntryTitle=" Select Country "
+_MirrorCntryBody="\nA list of mirrors by the selected country will be generated.\n\nOnce reviewed, you can choose to use it or not."
+_MirrorGenTitle=" Generating Mirrorlist "
+_MirrorGenBody="\nGenerating a mirrorlist. Please wait...\n\n"
+_MirrorGenQ="Use generated mirrorlist for installer?"
+_MirrorGenDone="\nDone! Original Mirrorlist has been saved as:\n\n/etc/pacman.d/mirrorlist.orig\n\n"
+
 # Set Keymap (vconsole)
-_KeymapTitle=" Virtual Console Keymap "
-_KeymapBody="\nUse the [pg up] and [pg dwn] keys for navigation, or press the first letter of the keymap if known."
+_KeymapTitle=" Virtual Console "
+_KeymapBody="\nSelect Virtual Console Keymap."
 
 # Set Xkbmap (environment)
-_XkbmapTitle=" X11 Keymap "
+_XkbmapTitle=" X11 Desktop Environment "
+_XkbmapBody="\nSelect Desktop Environment Keymap."
 
 # Set Locale
 _LocateTitle=" Select locale "
@@ -155,6 +202,10 @@ _FstabDev="Dev (partition code)"
 _FstabLabel="Label (user defined)"
 _FstabUUID="UUID/PARTUUID (unique code)"
 
+# Check FSTAB - remove
+#_FstabChkTitle=" Check FSTAB "
+#_FstabChkBody="\nPlease check the FSTAB file, before closing it to continue.\n\n"
+
 # Set Hostname
 _HostNameTitle=" Configure Host Name "
 _HostNameBody="\nThe host name is used to identify the system on a network.\n\nIt is restricted to alphanumeric characters, can contain a hyphen (-) - but not at the start or end - and must be no longer than 63 characters.\n"
@@ -175,7 +226,6 @@ _NUsrBody="\nEnter the user name. Letters MUST be lower case.\n"
 # Username Error
 _NUsrErrTitle=" User Name Error "
 _NUsrErrBody="\nAn incorrect user name was entered. Please try again.\n\n"
-_NUsrExistBody="\nA user account has already been created!\n\n"
 
 # Set User Password
 _PassNUsrTitle=" Set User Password "
@@ -204,7 +254,7 @@ _DevSelGrubTitle=" Select Grub Device "
 
 # Partitioning Tool - Translate
 _PartToolTitle=" Partitioning Tool "
-_PartToolBody="\nAn Auto-Partition option is available for beginners.\n\nDO NOT select a UEFI/GPT-only partitioning tool for a BIOS/MBR system as this could cause serious problems, including an unbootable installation."
+_PartToolBody="\nAn Auto-Partition option is available for beginners. CFDisk is recomended for BIOS, Parted for UEFI.\n\nDO NOT select a UEFI/GPT-only partitioning tool for a BIOS/MBR system as this could cause serious problems, including an unbootable installation."
 
 # UEFI Partitioning Error
 _UefiPartErrTitle=" UEFI Partitioning Error " 
@@ -261,6 +311,15 @@ _ExtErrBody="\nPartition cannot be mounted. A name must be given after a forward
 
 # Install Base
 _InstBseTitle=" Install Base "
+_InstBseBody="\nThe latest kernel supports newer hardware. The LTS kernel is more stable, and is supported far longer.\n\nThe base-devel package group will be required to use the Arch User Repository (AUR)."
+_InstBaseLK="Latest Kernel"
+_InstBaseLKBD="Latest Kernel & base-devel"
+_InstBaseLTS="LTS Kernel"
+_InstBaseLTSBD="LTS Kernel & base-devel"
+
+# Install Wireless Packages
+_InstWirTitle=" Wireless Device Detected "
+_InstWirBody="\nInstalling supplementary wireless packages...\n\n"
 
 # Install BIOS Bootloader
 _InstBiosBtTitle=" Install BIOS Bootloader "
@@ -293,15 +352,68 @@ _SetDefDoneBody="has been set as the default bootloader.\n\n"
 _RefiErrTitle=" rEFInd UEFI Mountpoint "
 _RefiErrBody="\nThe rEFInd installation script will not work unless the UEFI partition has been mounted to /boot/efi. Please select either Gummiboot (recommended) or Grub.\n\n"
 
+# ALSA, Xorg, Input
+_AXITitle=" ALSA, Xorg, and Input "
+_AXIBody="\nBefore installing graphics card driver(s) or desktop environments, other packages are needed first:\n\nalsa - Advanced Linux Sound Architecture\nxorg-* - open-source X window system for graphics\nxf86-input-* - open-source drivers for input devices\n\n"
+
+# Graphics Card Menu
+_GCtitle=" Graphics Card Menu "
+_GCBody="Pick Nouveau for older NVIDIA cards. If your card is not listed, pick 'Unknown / Generic'.\n"
+_GCUnknOpt="Unknown / Generic"
+
+# NVIDIA Configruation Check
+_NvidiaConfTitle=" NVIDIA Configuration Check "
+_NvidiaConfBody="\nA basic NVIDIA configuration file has been created. Please check it before closing to continue.\n"
+
+# Graphics Card Detection
+_GCDetTitle="Detected"
+_GCDetBody="\nIs your graphics card or virtualisation software"
+_GCDetBody2="-Select 'Yes' to install its OPEN-SOURCE driver.\n\n-Select 'No' to open the graphics card menu, which includes proprietary NVIDIA drivers."
+
+#  Install DE Info
+_DEInfoTitle=" Install Desktop Environments "
+_DEInfoBody="\nThis option can be repeated to install multiple environments.\n\nGnome, KDE (full), and LXDE come with a display manager.\n\nCinnamon, Gnome and KDE come with a Network Manager.\n\n"
+
+# Install DE Menu
+_InstDETitle=" Install Desktop Environments "
+_InstDEBody="\nDesktop Environments are listed first, and may have multiple download options."
+
+# Install Common Packages
+_InstComTitle=" Install Common Packages? "
+_InstComBody="\nSome environments require common files to be installed, particularly for permissions, creation of home folders, and file manager functionality.\n\nPackages include: xdg-user-dirs, gksu, gnome-keyring, polkit, gvfs, and the gnome-icon-theme, etc. Those installing the full KDE desktop alone will not need to install these.\n\nInstall these packages? This option will only be presented ONCE.\n\n"
+
+# DM Enabled
+_DmDoneTitle="Enabled "
+_DMDoneBody="has been enabled.\n\n"
+
+# LXDM or LightDM
+_DmChTitle=" Choose Display Manager "
+_DmChBody="\nPlease choose your display manager.\n"
+
+# DM Already Installed
+_DmInstTitle=" Display Manager Installed "
+_DmInstBody="\nA display manager has already been installed and enabled.\n\n"
+
+# Network Manager
+_InstNMTitle=" Choose Network Manager "
+_InstNMBody="\nNetwork Manager is recommended, especially for wireless and PPPoE/DSL connections.\n"
+
+# Network Manager Installed
+_InstNMDoneTitle=" Network Manager Installed "
+_InstNMDoneBody="\nThe network connection manager has been installed and enabled."
+
+# Network Manager Already Installed (no need for seperate title)
+_InstNMErrBody="\nA network connection manager has already been installed and enabled."
 
 # Welcome
 _WelTitle=" Welcome to"
-_WelBody="\nHighlight options by pressing their numbers or by using the up/down arrow keys before pressing [enter] to confirm.\n\nSwitch between buttons by using [Tab] or the left/right arrow keys before pressing [enter] to confirm.\n"
+_WelBody="\nThis installer will download the latest packages from the Arch repositories. Installations are vanilla, so only the minimal necessary configuration is undertaken.\n\nHighlight options by pressing their numbers or by using the up/down arrow keys before pressing [enter] to confirm.\n\nSwitch between buttons by using [Tab] or the left/right arrow keys before pressing [enter] to confirm.\n"
 
 # Preparation Menu
 _PrepTitle=" Prepare Installation "
 _PrepBody="\nThe console keyboard layout will be used for both the installer and the installed system.\n"
 _PrepKBLayout="Set Desktop Keyboard Layout"
+_PrepMirror="Configure Installer Mirrorlist (optional)"
 _PrepPartDisk="Partition Disk"
 _PrepMntPart="Mount Partitions"
 _Back="Back"
@@ -320,13 +432,21 @@ _ConfBseHost="Set Hostname"
 _ConfBseTime="Set Timezone"
 _ConfBseHWC="Set Hardware Clock"
 _ConfBseSysLoc="Set System Locale"
-_ConfBseKeyMap="Set Keymaps"
+_ConfBseVirtCon="Set Virtual Console"
 
 # User Menu
 _ConfUsrTitle=" Configure User(s)"
 _ConfUsrBody="\nRoot is the default 'super-user' or 'admin' account. The same password can be set for both Root and any personal user accounts created."
 _ConfUsrRoot="Set Root Password"
 _ConfUsrNew="Add New User(s)"
+
+# Desktop Menu
+_InstDEMenuTitle=" Install Desktop "
+_InstDEMenuBody="\nPrior to installing a desktop environment, graphics, input, and sound drivers MUST be installed first. This will include installing graphics card drivers."
+_InstDEMenuGISD="Install Graphics, Input, and Sound Drivers"
+_InstDEMenuDE="Install Desktop Environment(s)"
+_InstDEMenuNM="Install Network Connection Manager"
+_InstDEMenuDM="Install Display Manager / Login Screen"
 
 # Main Menu
 _MMTitle=" Main Menu "
