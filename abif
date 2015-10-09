@@ -1531,7 +1531,7 @@ uefi_bootloader() {
           if [[ $LTS -eq 1 ]]; then
             echo -e "title\tPacbang Linux\nlinux\t/vmlinuz-linux-lts\ninitrd\t/initramfs-linux-lts.img\noptions\troot=PARTUUID=${sysdb_root} rw" > ${MOUNTPOINT}${UEFI_MOUNT}/loader/entries/pacbang.conf
           else
-            echo -e "title\tAPacbang Linux\nlinux\t/vmlinuz-linux\ninitrd\t/initramfs-linux.img\noptions\troot=PARTUUID=${sysdb_root} rw" > ${MOUNTPOINT}${UEFI_MOUNT}/loader/entries/pacbang.conf
+            echo -e "title\tPacbang Linux\nlinux\t/vmlinuz-linux\ninitrd\t/initramfs-linux.img\noptions\troot=PARTUUID=${sysdb_root} rw" > ${MOUNTPOINT}${UEFI_MOUNT}/loader/entries/pacbang.conf
           fi
           
           # Fix LVM Root installations, and deal with btrfs root subvolume mounting
