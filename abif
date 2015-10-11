@@ -18,7 +18,7 @@
 # ISO Specific Variables
 ISO_HOST="pacbang"                           		# ISO Host Name
 ISO_USER="paclive"           						# Live user account
-VERSION="Pacbang Installation Framework 1.0"		# Installer Name / Version
+VERSION="Pacbang Installation Framework 1.1"		# Installer Name / Version
 TRANS_SRC="/abif-master"							# Dir where translation files are stored
 
 # Create a temporary file to store menu selections
@@ -435,7 +435,7 @@ create_new_user() {
 	   check_for_error
         
 	   # Distro-specific configuration for entered username
-	   sed -i "s/$ISO_USER/$USER/g" ${MOUNTPOINT}/home/$ISO_USER/.gtkrc-2.0 2>/tmp/.errlog
+	   sed -i "s/$ISO_USER/$USER/g" ${MOUNTPOINT}/home/$ISO_USER/.gtkrc-2.0 2>/tmp/.errlog 
         
 	   # Convert live account to entered username - group, password, folder, and ownership
 	   sed -i "s/$ISO_USER/$USER/g" ${MOUNTPOINT}/etc/group 2>>/tmp/.errlog
@@ -1339,6 +1339,10 @@ install_root(){
 
   check_for_error
   
+  # Fix GTK misconfiguration in .xinitrc
+  sed -i 's/export GTK2_RC_FILES=\"\/root\/\.gtkrc-2\.0\"//' ${MOUNTPOINT}/etc/skel/.xinitrc
+  sed -i 's/export GTK2_RC_FILES=\"\/root\/\.gtkrc-2\.0\"//' ${MOUNTPOINT}/$ISO_USER/.xinitrc
+  
   # Keyboard config for vc and x11
   [[ -e /tmp/vconsole.conf ]] && cp /tmp/vconsole.conf ${MOUNTPOINT}/etc/vconsole.conf 2>>/tmp/.errlog
   [[ -e /tmp/01-keyboard-layout.conf ]] && cp -f /tmp/01-keyboard-layout.conf ${MOUNTPOINT}/etc/X11/xorg.conf.d/$(ls ${MOUNTPOINT}/etc/X11/xorg.conf.d/ | grep "keyboard") 2>>/tmp/.errlog
@@ -1365,6 +1369,7 @@ install_root(){
   rm -f ${MOUNTPOINT}/var/lib/NetworkManager/NetworkManager.state 2>>/tmp/.errlog
   rm -f ${MOUNTPOINT}/update-abif 2>>/tmp/.errlog
   sed -i 's/.*pam_wheel\.so/#&/' ${MOUNTPOINT}/etc/pam.d/su 2>>/tmp/.errlog
+  sed -i 's/export GTK2_RC_FILES=\"\/root\/\.gtkrc-2\.0\"//' ${MOUNTPOINT}/$ISO_USER/.xinitrc
  
   # clean out archiso files from install
   find ${MOUNTPOINT}/usr/lib/initcpio -name archiso* -type f -exec rm '{}' \;
