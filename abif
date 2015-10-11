@@ -1369,8 +1369,7 @@ install_root(){
   rm -f ${MOUNTPOINT}/var/lib/NetworkManager/NetworkManager.state 2>>/tmp/.errlog
   rm -f ${MOUNTPOINT}/update-abif 2>>/tmp/.errlog
   sed -i 's/.*pam_wheel\.so/#&/' ${MOUNTPOINT}/etc/pam.d/su 2>>/tmp/.errlog
-  sed -i 's/export GTK2_RC_FILES=\"\/root\/\.gtkrc-2\.0\"//' ${MOUNTPOINT}/$ISO_USER/.xinitrc
- 
+
   # clean out archiso files from install
   find ${MOUNTPOINT}/usr/lib/initcpio -name archiso* -type f -exec rm '{}' \;
  
